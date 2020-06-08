@@ -5,6 +5,7 @@ use std::fmt::{Display, Formatter, Result};
 pub struct Chip8 {
     pub memory: [u8; 0xFFF],
     pub registers: [u8; 16],
+    pub keys: [bool; 16],
     pub index: u16,
     pub pc: u16,
     pub sp: u8,
@@ -25,6 +26,7 @@ impl Chip8 {
         Chip8 {
             memory: [0; 0xFFF],
             registers: [0; 16],
+            keys: [false; 16],
             index: 0,
             pc: 0x200,
             sp: 0,
@@ -42,6 +44,11 @@ impl Chip8 {
             code: opcode,
             decoded: opcode & 0xF000,
             data: opcode & 0x0FFF,
+        }
+    }
+    pub fn load_font_set(&mut self, fontset: [u8; 80]) {
+        for offset in 0..80 {
+            self.memory[0x050 + offset] = fontset[offset];
         }
     }
 
