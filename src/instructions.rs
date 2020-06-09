@@ -1,6 +1,18 @@
 use crate::chip8::{Chip8, OpCode};
 use std::collections::HashMap;
 
+fn get_vx_and_vy(opcode: &OpCode) -> (usize, usize) {
+    let vx = (opcode.code & 0x0F00) >> 8;
+    let vy = (opcode.code & 0x00F0) >> 4;
+    (vx as usize, vy as usize)
+}
+
+fn get_vx_and_number(opcode: &OpCode) -> (usize, u8) {
+    let vx = (opcode.code & 0x0F00) >> 8;
+    let number = opcode.code & 0x00FF;
+    (vx as usize, number as u8)
+}
+
 fn call_subroutine(cpu: &mut Chip8, opcode: OpCode) {
     cpu.stack[cpu.sp as usize] = cpu.pc;
     cpu.sp += 1;
@@ -21,46 +33,40 @@ fn jump_to_address(cpu: &mut Chip8, opcode: OpCode) {
 }
 
 fn jump_if_reg_values_are_equal(cpu: &mut Chip8, opcode: OpCode) {
-    let vx = (opcode.code & 0x0F00) >> 8;
-    let vy = (opcode.code & 0x00F0) >> 4;
+    let (vx, vy) = get_vx_and_vy(&opcode);
     if cpu.registers[vx as usize] == cpu.registers[vy as usize] {
         cpu.pc += 2;
     }
 }
 
 fn jump_if_reg_value_is_equal_to_number(cpu: &mut Chip8, opcode: OpCode) {
-    let vx = (opcode.code & 0x0F00) >> 8;
-    let number = opcode.code & 0x00FF;
+    let (vx, number) = get_vx_and_number(&opcode);
     if cpu.registers[vx as usize] == number as u8 {
         cpu.pc += 2;
     }
 }
 
 fn jump_if_reg_value_is_not_equal_to_number(cpu: &mut Chip8, opcode: OpCode) {
-    let vx = (opcode.code & 0x0F00) >> 8;
-    let number = opcode.code & 0x00FF;
+    let (vx, number) = get_vx_and_number(&opcode);
     if cpu.registers[vx as usize] != number as u8 {
         cpu.pc += 2;
     }
 }
 
 fn jump_if_reg_values_are_not_equal(cpu: &mut Chip8, opcode: OpCode) {
-    let vx = (opcode.code & 0x0F00) >> 8;
-    let vy = (opcode.code & 0x00F0) >> 4;
+    let (vx, vy) = get_vx_and_vy(&opcode);
     if cpu.registers[vx as usize] != cpu.registers[vy as usize] {
         cpu.pc += 2;
     }
 }
 
 fn store_number_in_register(cpu: &mut Chip8, opcode: OpCode) {
-    let vx = (opcode.code & 0x0F00) >> 8;
-    let number = opcode.code & 0x00FF;
+    let (vx, number) = get_vx_and_number(&opcode);
     cpu.registers[vx as usize] = number as u8;
 }
 
 fn copy_register_value(cpu: &mut Chip8, opcode: OpCode) {
-    let vx = (opcode.code & 0x0F00) >> 8;
-    let vy = (opcode.code & 0x00F0) >> 4;
+    let (vx, vy) = get_vx_and_vy(&opcode);
     cpu.registers[vx as usize] = cpu.registers[vy as usize];
 }
 
@@ -68,28 +74,33 @@ fn add_to_register_and_ignore_carry_flag(_cpu: &mut Chip8, _opcode: OpCode) {
     println!("Add to register and ignore carry flag");
 }
 
-fn bitwise_or_and_store(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Bitwise OR and store");
+fn bitwise_or_and_store(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, vy) = get_vx_and_vy(&opcode);
+    cpu.registers[vx as usize] |= cpu.registers[vy as usize];
 }
 
-fn bitwise_and_and_store(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Bitwise AND and store");
+fn bitwise_and_and_store(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, vy) = get_vx_and_vy(&opcode);
+    cpu.registers[vx as usize] &= cpu.registers[vy as usize];
 }
 
-fn bitwise_xor_and_store(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Bitwise XOR and store");
+fn bitwise_xor_and_store(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, vy) = get_vx_and_vy(&opcode);
+    cpu.registers[vx as usize] ^= cpu.registers[vy as usize];
 }
 
 fn bitwise_shif_right_and_store(_cpu: &mut Chip8, _opcode: OpCode) {
     println!("Bitwise shift right and store");
 }
 
-fn add_and_store(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("ADD and store");
+fn add_and_store(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, vy) = get_vx_and_vy(&opcode);
+    cpu.registers[vx as usize] += cpu.registers[vy as usize];
 }
 
-fn subtract_and_store(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("SUBTRACT and store");
+fn subtract_and_store(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, vy) = get_vx_and_vy(&opcode);
+    cpu.registers[vx as usize] -= cpu.registers[vy as usize];
 }
 
 fn subtract_and_store_and_set_vf(_cpu: &mut Chip8, _opcode: OpCode) {
