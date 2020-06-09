@@ -13,7 +13,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     emulator.load_font_set(fontset::FONT_SET);
     for _ in 0..rom.rom_size() {
         emulator.run();
-        emulator.pc += 2;
     }
     Ok(())
 }

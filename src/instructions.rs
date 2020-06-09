@@ -1,44 +1,67 @@
 use crate::chip8::{Chip8, OpCode};
 use std::collections::HashMap;
 
-fn call_subroutine(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Calling subroutine");
+fn call_subroutine(cpu: &mut Chip8, opcode: OpCode) {
+    cpu.stack[cpu.sp as usize] = cpu.pc;
+    cpu.sp += 1;
+    cpu.pc = opcode.data;
 }
 
 fn clear_screen(_cpu: &mut Chip8, _opcode: OpCode) {
     println!("Clearing screen");
 }
 
-fn return_from_subroutine(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Returning from subroutine");
+fn return_from_subroutine(cpu: &mut Chip8, _opcode: OpCode) {
+    cpu.sp -= 1;
+    cpu.pc = cpu.stack[cpu.sp as usize];
 }
 
-fn jump_to_address(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Jumping to address");
+fn jump_to_address(cpu: &mut Chip8, opcode: OpCode) {
+    cpu.pc = opcode.data;
 }
 
-fn jump_if_reg_values_are_equal(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Jump if values are not equal");
+fn jump_if_reg_values_are_equal(cpu: &mut Chip8, opcode: OpCode) {
+    let vx = (opcode.code & 0x0F00) >> 8;
+    let vy = (opcode.code & 0x00F0) >> 4;
+    if cpu.registers[vx as usize] == cpu.registers[vy as usize] {
+        cpu.pc += 2;
+    }
 }
 
-fn jump_if_reg_value_is_equal_to_number(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Jump if reg value if equal to number");
+fn jump_if_reg_value_is_equal_to_number(cpu: &mut Chip8, opcode: OpCode) {
+    let vx = (opcode.code & 0x0F00) >> 8;
+    let number = opcode.code & 0x00FF;
+    if cpu.registers[vx as usize] == number as u8 {
+        cpu.pc += 2;
+    }
 }
 
-fn jump_if_reg_value_is_not_equal_to_number(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Jump if reg value is not equals number");
+fn jump_if_reg_value_is_not_equal_to_number(cpu: &mut Chip8, opcode: OpCode) {
+    let vx = (opcode.code & 0x0F00) >> 8;
+    let number = opcode.code & 0x00FF;
+    if cpu.registers[vx as usize] != number as u8 {
+        cpu.pc += 2;
+    }
 }
 
-fn jump_if_reg_values_are_not_equal(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Jump if reg values are not equal");
+fn jump_if_reg_values_are_not_equal(cpu: &mut Chip8, opcode: OpCode) {
+    let vx = (opcode.code & 0x0F00) >> 8;
+    let vy = (opcode.code & 0x00F0) >> 4;
+    if cpu.registers[vx as usize] != cpu.registers[vy as usize] {
+        cpu.pc += 2;
+    }
 }
 
-fn store_number_in_register(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Store number in register");
+fn store_number_in_register(cpu: &mut Chip8, opcode: OpCode) {
+    let vx = (opcode.code & 0x0F00) >> 8;
+    let number = opcode.code & 0x00FF;
+    cpu.registers[vx as usize] = number as u8;
 }
 
-fn copy_register_value(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Copy register value");
+fn copy_register_value(cpu: &mut Chip8, opcode: OpCode) {
+    let vx = (opcode.code & 0x0F00) >> 8;
+    let vy = (opcode.code & 0x00F0) >> 4;
+    cpu.registers[vx as usize] = cpu.registers[vy as usize];
 }
 
 fn add_to_register_and_ignore_carry_flag(_cpu: &mut Chip8, _opcode: OpCode) {

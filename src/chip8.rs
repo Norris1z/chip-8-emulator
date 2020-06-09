@@ -16,9 +16,9 @@ pub struct Chip8 {
 }
 
 pub struct OpCode {
-    code: u16,
-    decoded: u16,
-    data: u16,
+    pub code: u16,
+    pub decoded: u16,
+    pub data: u16,
 }
 
 impl Chip8 {
@@ -37,9 +37,10 @@ impl Chip8 {
         }
     }
 
-    pub fn get_next_opcode(&self) -> OpCode {
+    pub fn get_next_opcode(&mut self) -> OpCode {
         let opcode =
             (self.memory[self.pc as usize] as u16) << 8 | self.memory[self.pc as usize + 1] as u16;
+        self.pc += 2;
         OpCode {
             code: opcode,
             decoded: opcode & 0xF000,
