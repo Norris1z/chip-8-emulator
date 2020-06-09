@@ -1,6 +1,8 @@
 use crate::chip8::{Chip8, OpCode};
 use std::collections::HashMap;
 
+const VF: usize = 0xF;
+
 fn get_vx_and_vy(opcode: &OpCode) -> (usize, usize) {
     let vx = (opcode.code & 0x0F00) >> 8;
     let vy = (opcode.code & 0x00F0) >> 4;
@@ -89,22 +91,41 @@ fn bitwise_xor_and_store(cpu: &mut Chip8, opcode: OpCode) {
     cpu.registers[vx] ^= cpu.registers[vy];
 }
 
-fn bitwise_shif_right_and_store(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Bitwise shift right and store");
+fn bitwise_shif_right_and_store(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    cpu.registers[vx] >>= 1;
 }
 
 fn add_and_store(cpu: &mut Chip8, opcode: OpCode) {
     let (vx, vy) = get_vx_and_vy(&opcode);
-    cpu.registers[vx] += cpu.registers[vy];
+    let sum = cpu.registers[vx] as u16 + cpu.registers[vy] as u16;
+
+    if sum > std::u8::MAX as u16 {
+        cpu.registers[VF] = 1;
+    } else {
+        cpu.registers[VF] = 0;
+    }
+    cpu.registers[vx] = (sum & 0xFF) as u8;
 }
 
 fn subtract_and_store(cpu: &mut Chip8, opcode: OpCode) {
     let (vx, vy) = get_vx_and_vy(&opcode);
+    if cpu.registers[vx] > cpu.registers[vy] {
+        cpu.registers[VF] = 1;
+    } else {
+        cpu.registers[VF] = 0;
+    }
     cpu.registers[vx] -= cpu.registers[vy];
 }
 
-fn subtract_and_store_and_set_vf(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("SUBTRACT and store and set VF");
+fn subtract_and_store_and_set_vf(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, vy) = get_vx_and_vy(&opcode);
+    if cpu.registers[vy] > cpu.registers[vx] {
+        cpu.registers[VF] = 1;
+    } else {
+        cpu.registers[VF] = 0;
+    }
+    cpu.registers[vx] = cpu.registers[vy] - cpu.registers[vx];
 }
 
 fn store_msb_and_left_shift(_cpu: &mut Chip8, _opcode: OpCode) {
