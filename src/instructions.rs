@@ -130,8 +130,11 @@ fn subtract_and_store_and_set_vf(cpu: &mut Chip8, opcode: OpCode) {
     cpu.registers[vx] = cpu.registers[vy] - cpu.registers[vx];
 }
 
-fn store_msb_and_left_shift(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Store MSB and left shift");
+fn store_msb_and_left_shift(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    let number = cpu.registers[vx];
+    cpu.registers[VF] = number >> 7;
+    cpu.registers[vx] <<= 1;
 }
 
 fn set_index_to_mem_address(cpu: &mut Chip8, opcode: OpCode) {
@@ -203,8 +206,10 @@ fn add_vx_to_i_and_set_overflow(cpu: &mut Chip8, opcode: OpCode) {
     cpu.index = sum;
 }
 
-fn set_i_to_location_of_sprite_in_vx(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Set I to location of sprite in VX");
+fn set_i_to_location_of_sprite_in_vx(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    let number = cpu.registers[vx] as u16;
+    cpu.index = 0x50 + (5 * number);
 }
 
 fn store_binary_coded_decimal_representaion_of_vx(cpu: &mut Chip8, opcode: OpCode) {
