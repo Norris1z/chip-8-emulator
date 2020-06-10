@@ -1,4 +1,5 @@
 use crate::chip8::{Chip8, OpCode};
+use rand::prelude::*;
 use std::collections::HashMap;
 
 const VF: usize = 0xF;
@@ -72,8 +73,9 @@ fn copy_register_value(cpu: &mut Chip8, opcode: OpCode) {
     cpu.registers[vx] = cpu.registers[vy];
 }
 
-fn add_to_register_and_ignore_carry_flag(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Add to register and ignore carry flag");
+fn add_to_register_and_ignore_carry_flag(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, number) = get_vx_and_number(&opcode);
+    cpu.registers[vx] += number;
 }
 
 fn bitwise_or_and_store(cpu: &mut Chip8, opcode: OpCode) {
@@ -132,64 +134,101 @@ fn store_msb_and_left_shift(_cpu: &mut Chip8, _opcode: OpCode) {
     println!("Store MSB and left shift");
 }
 
-fn set_index_to_mem_address(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Set I to mem address");
+fn set_index_to_mem_address(cpu: &mut Chip8, opcode: OpCode) {
+    cpu.index = opcode.code & 0x0FFF;
 }
 
-fn jump_to_address_plus_v0(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Jump to address plus V0");
+fn jump_to_address_plus_v0(cpu: &mut Chip8, opcode: OpCode) {
+    cpu.pc = cpu.registers[0] as u16 + (opcode.code & 0x0FFF);
 }
 
-fn bitwise_on_a_random_number_and_store(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Bitwise random number and store");
+fn bitwise_on_a_random_number_and_store(cpu: &mut Chip8, opcode: OpCode) {
+    let random_number: u8 = random();
+    let (vx, number) = get_vx_and_number(&opcode);
+    cpu.registers[vx] = random_number & number;
 }
 
 fn draw_sprite(_cpu: &mut Chip8, _opcode: OpCode) {
     println!("Draw Sprite");
 }
 
-fn jump_if_key_is_pressed(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Jump if key is pressed");
+fn jump_if_key_is_pressed(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    if cpu.keys[vx] {
+        cpu.pc += 2;
+    }
 }
 
-fn jump_if_key_is_not_pressed(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Jump if key is not pressed");
+fn jump_if_key_is_not_pressed(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    if !cpu.keys[vx] {
+        cpu.pc += 2;
+    }
 }
 
-fn get_delay_timer_and_set_to_vx(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Get delay timer and set to VX");
+fn get_delay_timer_and_set_to_vx(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    cpu.registers[vx] = cpu.delay_timer;
 }
 
-fn set_delay_timer_to_vx(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Set delay timer to VX");
+fn set_delay_timer_to_vx(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    cpu.delay_timer = vx as u8;
 }
 
-fn set_sound_timer_to_vx(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Set Sound timer to VX");
+fn set_sound_timer_to_vx(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    cpu.sound_timer = vx as u8;
 }
 
-fn get_key_press_and_store(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Get and store keypress");
+fn get_key_press_and_store(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    for (key, &pressed) in cpu.keys.iter().enumerate() {
+        if pressed {
+            cpu.registers[vx] = key as u8;
+            return;
+        }
+    }
+    cpu.pc -= 2;
 }
 
-fn add_vx_to_i_and_set_overflow(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Add VX to I and set Overflow");
+fn add_vx_to_i_and_set_overflow(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    let sum = vx as u16 + cpu.index;
+    if sum > 0xFFF {
+        cpu.registers[VF] = 1;
+    } else {
+        cpu.registers[VF] = 0;
+    }
+    cpu.index = sum;
 }
 
 fn set_i_to_location_of_sprite_in_vx(_cpu: &mut Chip8, _opcode: OpCode) {
     println!("Set I to location of sprite in VX");
 }
 
-fn store_binary_coded_decimal_representaion_of_vx(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Store BCD");
+fn store_binary_coded_decimal_representaion_of_vx(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    let mut value = cpu.registers[vx];
+    cpu.memory[cpu.index as usize + 2] = value % 10;
+    value /= 10;
+    cpu.memory[cpu.index as usize + 1] = value % 10;
+    value /= 10;
+    cpu.memory[cpu.index as usize] = value % 10;
 }
 
-fn store_v0_to_vx_starting_at_address_i(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Store v0 to vx");
+fn store_v0_to_vx_starting_at_address_i(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    for v_index in 0..=vx {
+        cpu.memory[cpu.index as usize + v_index] = cpu.registers[v_index];
+    }
 }
 
-fn fill_v0_to_vx_starting_at_address_i(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Fill V0 to VX");
+fn fill_v0_to_vx_starting_at_address_i(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, _) = get_vx_and_vy(&opcode);
+    for v_index in 0..=vx {
+        cpu.registers[v_index] = cpu.memory[cpu.index as usize + v_index];
+    }
 }
 
 pub fn create_opcode_instructions_map() -> HashMap<u16, fn(&mut Chip8, OpCode)> {
