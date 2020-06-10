@@ -75,7 +75,7 @@ fn copy_register_value(cpu: &mut Chip8, opcode: OpCode) {
 
 fn add_to_register_and_ignore_carry_flag(cpu: &mut Chip8, opcode: OpCode) {
     let (vx, number) = get_vx_and_number(&opcode);
-    cpu.registers[vx] += number;
+    cpu.registers[vx] = cpu.registers[vx].wrapping_add(number);
 }
 
 fn bitwise_or_and_store(cpu: &mut Chip8, opcode: OpCode) {
