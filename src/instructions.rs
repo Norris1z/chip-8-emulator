@@ -210,11 +210,11 @@ fn set_i_to_location_of_sprite_in_vx(_cpu: &mut Chip8, _opcode: OpCode) {
 fn store_binary_coded_decimal_representaion_of_vx(cpu: &mut Chip8, opcode: OpCode) {
     let (vx, _) = get_vx_and_vy(&opcode);
     let mut value = cpu.registers[vx];
-    cpu.memory[cpu.index as usize + 2] = value % 10;
-    value /= 10;
-    cpu.memory[cpu.index as usize + 1] = value % 10;
-    value /= 10;
-    cpu.memory[cpu.index as usize] = value % 10;
+    cpu.memory[cpu.index as usize + 2] = value.rem_euclid(10);
+    value = value.div_euclid(10);
+    cpu.memory[cpu.index as usize + 1] = value.rem_euclid(10);
+    value = value.div_euclid(10);
+    cpu.memory[cpu.index as usize] = value.rem_euclid(10);
 }
 
 fn store_v0_to_vx_starting_at_address_i(cpu: &mut Chip8, opcode: OpCode) {
