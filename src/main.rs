@@ -23,6 +23,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             break 'emulator_loop;
         }
         emulator.run();
+        if emulator.update_display {
+            emulator.update_display = false;
+            graphics::update_screen(&mut canvas, emulator.video);
+        }
     }
     Ok(())
 }

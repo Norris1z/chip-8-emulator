@@ -1,4 +1,5 @@
 use crate::chip8::{Chip8, OpCode};
+use crate::graphics;
 use rand::prelude::*;
 use std::collections::HashMap;
 
@@ -22,8 +23,9 @@ fn call_subroutine(cpu: &mut Chip8, opcode: OpCode) {
     cpu.pc = opcode.data;
 }
 
-fn clear_screen(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Clearing screen");
+fn clear_screen(cpu: &mut Chip8, _opcode: OpCode) {
+    cpu.video = [0; graphics::VIDEO_BUFFER_SIZE];
+    cpu.update_display = true;
 }
 
 fn return_from_subroutine(cpu: &mut Chip8, _opcode: OpCode) {

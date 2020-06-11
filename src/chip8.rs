@@ -1,3 +1,4 @@
+use crate::graphics;
 use crate::instructions;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result};
@@ -13,6 +14,8 @@ pub struct Chip8 {
     pub delay_timer: u8,
     pub sound_timer: u8,
     pub instruction_fns: HashMap<u16, fn(&mut Chip8, OpCode)>,
+    pub update_display: bool,
+    pub video: [u32; graphics::VIDEO_BUFFER_SIZE],
 }
 
 pub struct OpCode {
@@ -34,6 +37,8 @@ impl Chip8 {
             delay_timer: 0,
             sound_timer: 0,
             instruction_fns: instructions::create_opcode_instructions_map(),
+            update_display: false,
+            video: [0; graphics::VIDEO_BUFFER_SIZE],
         }
     }
 
