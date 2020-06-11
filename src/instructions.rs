@@ -177,6 +177,7 @@ fn draw_sprite(cpu: &mut Chip8, opcode: OpCode) {
             }
         }
     }
+    cpu.update_display = true;
 }
 
 fn jump_if_key_is_pressed(cpu: &mut Chip8, opcode: OpCode) {
