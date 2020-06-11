@@ -4,6 +4,8 @@ use sdl2::Sdl;
 use std::error::Error;
 
 pub const VIDEO_BUFFER_SIZE: usize = 64 * 32;
+pub const SCREEN_WIDTH: u8 = 64;
+pub const SCREEN_HEIGHT: u8 = 32;
 
 pub fn create_window(title: &str, context: &Sdl) -> Result<WindowCanvas, Box<dyn Error>> {
     let video = context.video()?;

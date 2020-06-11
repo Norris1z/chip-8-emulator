@@ -153,8 +153,30 @@ fn bitwise_on_a_random_number_and_store(cpu: &mut Chip8, opcode: OpCode) {
     cpu.registers[vx] = random_number & number;
 }
 
-fn draw_sprite(_cpu: &mut Chip8, _opcode: OpCode) {
-    println!("Draw Sprite");
+fn draw_sprite(cpu: &mut Chip8, opcode: OpCode) {
+    let (vx, vy) = get_vx_and_vy(&opcode);
+    let height = opcode.code & 0x000F;
+
+    let x_position = cpu.registers[vx].rem_euclid(graphics::SCREEN_WIDTH) as u16;
+    let y_position = cpu.registers[vy].rem_euclid(graphics::SCREEN_HEIGHT) as u16;
+
+    cpu.registers[VF] = 0;
+
+    for h in 0..height {
+        let sprite = cpu.video[(cpu.index + h) as usize];
+        for w in 0..8 {
+            let pixel = sprite & (0x80 >> w);
+            let existing_pixel_index =
+                ((y_position + h) * graphics::SCREEN_WIDTH as u16 + (x_position + w)) as usize;
+            let existing_pixel = cpu.video[existing_pixel_index];
+            if pixel != 0 {
+                if existing_pixel == 0xFFFFFFFF {
+                    cpu.registers[VF] = 1;
+                }
+                cpu.video[existing_pixel_index] ^= 0xFFFFFFFF;
+            }
+        }
+    }
 }
 
 fn jump_if_key_is_pressed(cpu: &mut Chip8, opcode: OpCode) {
