@@ -7,6 +7,8 @@ mod rom;
 use chip8::Chip8;
 use rom::Rom;
 use std::error::Error;
+use std::thread;
+use std::time::Duration;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut emulator = Chip8::new();
@@ -27,7 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             emulator.update_display = false;
             graphics::update_screen(&mut canvas, emulator.video);
         }
-        std::thread::sleep(std::time::Duration::from_millis(2))
+        thread::sleep(Duration::from_millis(2));
     }
     Ok(())
 }

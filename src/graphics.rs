@@ -28,9 +28,9 @@ pub fn create_default_screen(canvas: &mut WindowCanvas) {
 }
 
 pub fn update_screen(canvas: &mut WindowCanvas, video_buffer: [[u8; SCREEN_WIDTH]; SCREEN_HEIGHT]) {
-    canvas.clear();
-    for (y, row) in video_buffer.iter().enumerate() {
-        for (x, &pixel) in row.iter().enumerate() {
+    // canvas.clear();
+    for (y, pixels) in video_buffer.iter().enumerate() {
+        for (x, &pixel) in pixels.iter().enumerate() {
             let x = (x as u32) * SCALE_FACTOR;
             let y = (y as u32) * SCALE_FACTOR;
 
