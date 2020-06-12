@@ -15,7 +15,7 @@ pub struct Chip8 {
     pub sound_timer: u8,
     pub instruction_fns: HashMap<u16, fn(&mut Chip8, OpCode)>,
     pub update_display: bool,
-    pub video: [[u8; graphics::SCREEN_WIDTH as usize]; graphics::SCREEN_HEIGHT as usize],
+    pub video: [[u8; graphics::SCREEN_WIDTH]; graphics::SCREEN_HEIGHT],
 }
 
 pub struct OpCode {
@@ -38,7 +38,7 @@ impl Chip8 {
             sound_timer: 0,
             instruction_fns: instructions::create_opcode_instructions_map(),
             update_display: false,
-            video: [[0; graphics::SCREEN_WIDTH as usize]; graphics::SCREEN_HEIGHT as usize],
+            video: [[0; graphics::SCREEN_WIDTH]; graphics::SCREEN_HEIGHT],
         }
     }
 
