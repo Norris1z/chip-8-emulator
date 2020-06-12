@@ -11,49 +11,49 @@ pub fn capture(events: &mut EventPump, cpu: &mut Chip8) -> bool {
                 return true;
             }
             Event::KeyDown {
-                keycode: Some(Keycode::Kp1),
+                keycode: Some(Keycode::Num1),
                 ..
             } => {
                 cpu.keys[0x1] = true;
             }
             Event::KeyUp {
-                keycode: Some(Keycode::Kp1),
+                keycode: Some(Keycode::Num1),
                 ..
             } => {
                 cpu.keys[0x1] = false;
             }
             Event::KeyDown {
-                keycode: Some(Keycode::Kp2),
+                keycode: Some(Keycode::Num2),
                 ..
             } => {
                 cpu.keys[0x2] = true;
             }
             Event::KeyUp {
-                keycode: Some(Keycode::Kp2),
+                keycode: Some(Keycode::Num2),
                 ..
             } => {
                 cpu.keys[0x2] = false;
             }
             Event::KeyDown {
-                keycode: Some(Keycode::Kp3),
+                keycode: Some(Keycode::Num3),
                 ..
             } => {
                 cpu.keys[0x3] = true;
             }
             Event::KeyUp {
-                keycode: Some(Keycode::Kp3),
+                keycode: Some(Keycode::Num3),
                 ..
             } => {
                 cpu.keys[0x3] = false;
             }
             Event::KeyDown {
-                keycode: Some(Keycode::Kp4),
+                keycode: Some(Keycode::Num4),
                 ..
             } => {
                 cpu.keys[0xC] = true;
             }
             Event::KeyUp {
-                keycode: Some(Keycode::Kp4),
+                keycode: Some(Keycode::Num4),
                 ..
             } => {
                 cpu.keys[0xC] = false;
