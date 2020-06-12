@@ -10,7 +10,7 @@ use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut emulator = Chip8::new();
-    let rom = Rom::new("chip8-roms/PONG")?;
+    let rom = Rom::new("chip8-roms/VBRIX")?;
     rom.load_into_memory(&mut emulator.memory);
     emulator.load_font_set(fontset::FONT_SET);
     let context = sdl2::init()?;
@@ -27,6 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             emulator.update_display = false;
             graphics::update_screen(&mut canvas, emulator.video);
         }
+        std::thread::sleep(std::time::Duration::from_millis(2))
     }
     Ok(())
 }

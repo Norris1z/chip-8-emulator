@@ -130,7 +130,7 @@ fn subtract_and_store_and_set_vf(cpu: &mut Chip8, opcode: OpCode) {
     } else {
         cpu.registers[VF] = 0;
     }
-    cpu.registers[vx] = cpu.registers[vy] - cpu.registers[vx];
+    cpu.registers[vx] = cpu.registers[vy].wrapping_sub(cpu.registers[vx]);
 }
 
 fn store_msb_and_left_shift(cpu: &mut Chip8, opcode: OpCode) {
