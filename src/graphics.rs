@@ -10,7 +10,14 @@ const SCALE_FACTOR: u32 = 10;
 
 pub fn create_window(title: &str, context: &Sdl) -> Result<WindowCanvas, Box<dyn Error>> {
     let video = context.video()?;
-    let window = video.window(title, 640, 320).position_centered().build()?;
+    let window = video
+        .window(
+            title,
+            SCREEN_WIDTH as u32 * SCALE_FACTOR,
+            SCREEN_HEIGHT as u32 * SCALE_FACTOR,
+        )
+        .position_centered()
+        .build()?;
     Ok(window.into_canvas().build()?)
 }
 
