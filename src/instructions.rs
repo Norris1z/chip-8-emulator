@@ -24,7 +24,7 @@ fn call_subroutine(cpu: &mut Chip8, opcode: OpCode) {
 }
 
 fn clear_screen(cpu: &mut Chip8, _opcode: OpCode) {
-    cpu.video = [0; graphics::VIDEO_BUFFER_SIZE];
+    cpu.video = [[0; graphics::SCREEN_WIDTH]; graphics::SCREEN_HEIGHT];
     cpu.update_display = true;
 }
 
@@ -97,6 +97,7 @@ fn bitwise_xor_and_store(cpu: &mut Chip8, opcode: OpCode) {
 
 fn bitwise_shif_right_and_store(cpu: &mut Chip8, opcode: OpCode) {
     let (vx, _) = get_vx_and_vy(&opcode);
+    cpu.registers[VF] = cpu.registers[vx] & 0x1;
     cpu.registers[vx] >>= 1;
 }
 
@@ -119,7 +120,7 @@ fn subtract_and_store(cpu: &mut Chip8, opcode: OpCode) {
     } else {
         cpu.registers[VF] = 0;
     }
-    cpu.registers[vx] -= cpu.registers[vy];
+    cpu.registers[vx] = cpu.registers[vx].wrapping_sub(cpu.registers[vy]);
 }
 
 fn subtract_and_store_and_set_vf(cpu: &mut Chip8, opcode: OpCode) {
@@ -156,25 +157,15 @@ fn bitwise_on_a_random_number_and_store(cpu: &mut Chip8, opcode: OpCode) {
 fn draw_sprite(cpu: &mut Chip8, opcode: OpCode) {
     let (vx, vy) = get_vx_and_vy(&opcode);
     let height = opcode.code & 0x000F;
-
-    let x_position = cpu.registers[vx].rem_euclid(graphics::SCREEN_WIDTH) as u16;
-    let y_position = cpu.registers[vy].rem_euclid(graphics::SCREEN_HEIGHT) as u16;
-
     cpu.registers[VF] = 0;
 
-    for h in 0..height {
-        let sprite = cpu.video[(cpu.index + h) as usize];
-        for w in 0..8 {
-            let pixel = sprite & (0x80 >> w);
-            let existing_pixel_index =
-                ((y_position + h) * graphics::SCREEN_WIDTH as u16 + (x_position + w)) as usize;
-            let existing_pixel = cpu.video[existing_pixel_index];
-            if pixel != 0 {
-                if existing_pixel == 0xFFFFFFFF {
-                    cpu.registers[VF] = 1;
-                }
-                cpu.video[existing_pixel_index] ^= 0xFFFFFFFF;
-            }
+    for byte in 0..height {
+        let y = (cpu.registers[vy] as u16 + byte).rem_euclid(graphics::SCREEN_HEIGHT as u16);
+        for bit in 0..8 {
+            let x = (cpu.registers[vx] as u16 + bit).rem_euclid(graphics::SCREEN_WIDTH as u16);
+            let color = (cpu.memory[(cpu.index + byte) as usize] >> (7 - bit)) & 1;
+            cpu.registers[VF] |= color & cpu.video[y as usize][x as usize];
+            cpu.video[y as usize][x as usize] ^= color;
         }
     }
     cpu.update_display = true;

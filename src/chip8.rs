@@ -15,7 +15,7 @@ pub struct Chip8 {
     pub sound_timer: u8,
     pub instruction_fns: HashMap<u16, fn(&mut Chip8, OpCode)>,
     pub update_display: bool,
-    pub video: [u32; graphics::VIDEO_BUFFER_SIZE],
+    pub video: [[u8; graphics::SCREEN_WIDTH as usize]; graphics::SCREEN_HEIGHT as usize],
 }
 
 pub struct OpCode {
@@ -38,7 +38,7 @@ impl Chip8 {
             sound_timer: 0,
             instruction_fns: instructions::create_opcode_instructions_map(),
             update_display: false,
-            video: [0; graphics::VIDEO_BUFFER_SIZE],
+            video: [[0; graphics::SCREEN_WIDTH as usize]; graphics::SCREEN_HEIGHT as usize],
         }
     }
 
@@ -58,7 +58,16 @@ impl Chip8 {
         }
     }
 
+    fn update_timers(&mut self) {
+        if self.delay_timer > 0 {
+            self.delay_timer -= 1;
+        }
+        if self.sound_timer > 0 {
+            self.sound_timer -= 1;
+        }
+    }
     pub fn run(&mut self) {
+        self.update_timers();
         let opcode = self.get_next_opcode();
         let handler_key = match opcode.decoded {
             0x0000 | 0xE000 | 0xF000 => opcode.code & 0xF0FF,

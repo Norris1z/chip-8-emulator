@@ -1,11 +1,12 @@
 use sdl2::pixels::Color;
+use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use sdl2::Sdl;
 use std::error::Error;
 
-pub const VIDEO_BUFFER_SIZE: usize = 64 * 32;
-pub const SCREEN_WIDTH: u8 = 64;
-pub const SCREEN_HEIGHT: u8 = 32;
+pub const SCREEN_WIDTH: usize = 64;
+pub const SCREEN_HEIGHT: usize = 32;
+const SCALE_FACTOR: u32 = 10;
 
 pub fn create_window(title: &str, context: &Sdl) -> Result<WindowCanvas, Box<dyn Error>> {
     let video = context.video()?;
@@ -19,4 +20,20 @@ pub fn create_default_screen(canvas: &mut WindowCanvas) {
     canvas.present();
 }
 
-pub fn update_screen(_canvas: &mut WindowCanvas, _video_buffer: [u32; VIDEO_BUFFER_SIZE]) {}
+pub fn update_screen(canvas: &mut WindowCanvas, video_buffer: [[u8; SCREEN_WIDTH]; SCREEN_HEIGHT]) {
+    canvas.clear();
+    for (y, row) in video_buffer.iter().enumerate() {
+        for (x, &pixel) in row.iter().enumerate() {
+            let x = (x as u32) * SCALE_FACTOR;
+            let y = (y as u32) * SCALE_FACTOR;
+
+            if pixel == 1 {
+                canvas.set_draw_color(Color::WHITE);
+            } else {
+                canvas.set_draw_color(Color::BLACK);
+            }
+            let _ = canvas.fill_rect(Rect::new(x as i32, y as i32, SCALE_FACTOR, SCALE_FACTOR));
+        }
+    }
+    canvas.present();
+}

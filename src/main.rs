@@ -10,7 +10,7 @@ use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut emulator = Chip8::new();
-    let rom = Rom::new("chip8-roms/TETRIS")?;
+    let rom = Rom::new("chip8-roms/PONG")?;
     rom.load_into_memory(&mut emulator.memory);
     emulator.load_font_set(fontset::FONT_SET);
     let context = sdl2::init()?;
